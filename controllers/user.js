@@ -1,13 +1,16 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken')
 
-function createToken(user, SECRET_KEY, expireIn){
-
+function createToken(user, SECRET_KEY, expiresIn) {
+    const {id, name, email, username} = user;
+    const payload = {
+        id, name, email, username
+    };
+    return jwt.sign(payload, SECRET_KEY, {expiresIn})
 }
 
 async function register(input) {
-
-
     const newUser = input;
     newUser.email = newUser.email.toLowerCase();
     newUser.username = newUser.username.toLowerCase();
@@ -45,9 +48,8 @@ async function login(input) {
     const passwordSuccess = await bcrypt.compare(password, userFound.password);
     console.log(passwordSuccess);
     if (!passwordSuccess) throw new Error('error in email or password');
-
     return {
-        token: "lkhvpahsdovbsavdi´sahdvgiadsgvisavgsadhvo´dsavoh´vdsa´hs"
+        token: createToken(userFound, process.env.SECRET_KEY, '24h')
     };
 }
 
